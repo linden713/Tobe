@@ -1,8 +1,14 @@
-# 活着呢 | Tobe 🌿
+# <img src="app/src/main/res/drawable/tobe.png" width="40" vertical-align="baseline"> 活着呢 | Tobe 
 
 [![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/linden713/Tobe)](https://github.com/linden713/Tobe/releases)
+
+## 📱 Screenshots | 界面预览
+
+<p align="center">
+  <img src="app.jpg" width="300" alt="App Screenshot">
+</p>
 
 [English](#english) | [中文](#中文)
 
