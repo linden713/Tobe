@@ -4,6 +4,8 @@ import android.text.format.DateUtils
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -22,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +43,7 @@ fun HomeScreen(
 ) {
     val userPreferences by viewModel.userPreferences.collectAsState()
     val quote = viewModel.currentQuote
+    val uriHandler = LocalUriHandler.current
     var showExplanation by remember { mutableStateOf(false) }
     
     // Check-in state (Resets on app open/recomposition as requested, effectively "per session")
@@ -90,12 +94,21 @@ fun HomeScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(
-                            "活着呢",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = DarkGray
-                        )
+                        Box(
+                            modifier = Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null // Remove ripple for a cleaner look or keep it? User might prefer a clean look for a title.
+                            ) {
+                                uriHandler.openUri("https://github.com/linden713/Tobe")
+                            }
+                        ) {
+                            Text(
+                                "活着呢",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = DarkGray
+                            )
+                        }
                     },
                     actions = {
                         IconButton(onClick = { showExplanation = !showExplanation }) {
