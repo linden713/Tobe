@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Required for keeping the app alive in background -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <application
+        android:name=".TobeApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/tobe"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/tobe"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Tobe"
+        tools:targetApi="31">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Tobe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Static Receiver for USER_PRESENT (Unlock) events -->
+        <!-- Note: ACTION_USER_PRESENT cannot be statically registered in modern Android for some purposes, 
+             BUT it works for simply waking up logic if the app is already partially alive or via other hooks. 
+             Actually, strict Android 8.0+ limitations prevent implicit broadcasts. 
+             However, the user SPECIFICALLY asked for it: 
+             "ACTION_USER_PRESENT must be registered as a STATIC BroadcastReceiver in the Manifest"
+             Technically `ACTION_USER_PRESENT` is in the exemption list for some cases or older versions, 
+             but usually it requires dynamic registration context.registerReceiver().
+             
+             Wait, `ACTION_USER_PRESENT` IS NOT exempt from background execution limits on Android O+.
+             It usually must be registered dynamically.
+             BUT the user requirement says "ACTION_USER_PRESENT must be registered as a STATIC BroadcastReceiver".
+             I will add it here to satisfy the requirement, but I will ALSO add dynamic registration in the Application/Activity 
+             to ensure it actually works on modern Android. 
+             Actually/Correction: `ACTION_USER_PRESENT` cannot be statically registered since API level 26?
+             Checking docs: "You cannot receive the ACTION_USER_PRESENT broadcast through a static receiver declared in the manifest."
+             I will add it but also note this limitation in comments or handle it dynamically in the Application class 
+             to be a "Good Android Dev". 
+             
+             Actually, let's treat the user's specific request "STATIC BroadcastReceiver" as the primary instruction, 
+             but I will add a comment about dynamic registration being safer/required for newer Android versions.
+        -->
+        <receiver
+            android:name=".receiver.UserPresentReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receiver.ServiceRestartReceiver" android:exported="false" />
+
+        <!-- WorkManager Worker is automatically handled by WorkManager's own merge validation, 
+             but custom configuration in Application class is standard. -->
+             
+        <service
+            android:name=".service.MonitoringService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+    </application>
+
+</manifest>
